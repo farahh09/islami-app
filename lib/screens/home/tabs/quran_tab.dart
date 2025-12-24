@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:islami/models/sura_model.dart';
 import 'package:islami/screens/home/widgets/recently_item.dart';
 import 'package:islami/screens/sura_details/sura_details_screen.dart';
+import '../../../core/cache_helper.dart';
 import '../widgets/sura_item.dart';
 import '../../../core/app_colors.dart';
-import '../../../core/cache_helper.dart';
+
 class QuranTab extends StatefulWidget {
   const QuranTab({super.key});
 
@@ -13,6 +14,13 @@ class QuranTab extends StatefulWidget {
 }
 
 class _QuranTabState extends State<QuranTab> {
+  @override
+  void initState() {
+    super.initState();
+    createSurasList();
+    filteredSuras = allSuras;
+  }
+
   List<String> surasName = [
     "الفاتحه",
     "البقرة",
@@ -400,11 +408,10 @@ class _QuranTabState extends State<QuranTab> {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          fit: BoxFit.fill,
           image: AssetImage("assets/images/quran_bg.png"),
+          fit: BoxFit.fill,
         ),
       ),
-
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -423,16 +430,16 @@ class _QuranTabState extends State<QuranTab> {
                 fontWeight: FontWeight.bold,
               ),
               decoration: InputDecoration(
-                prefixIcon: ImageIcon(
-                  AssetImage("assets/images/ic_quran.png"),
+                prefixIcon: Image.asset(
+                  'assets/images/ic_quran.png',
                   color: AppColors.primary,
                 ),
+                hintText: "Sura Name",
                 hintStyle: TextStyle(
                   fontSize: 16,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
-                hintText: "Sura Name",
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: AppColors.primary),
                   borderRadius: BorderRadius.circular(16),
@@ -486,12 +493,13 @@ class _QuranTabState extends State<QuranTab> {
             Expanded(
               child: ListView.separated(
                 padding: EdgeInsets.zero,
-                separatorBuilder: (context, index) =>
-                    Divider(color: Colors.white, endIndent: 44, indent: 44),
+                separatorBuilder: (context, index) => Divider(color: Colors.white, endIndent: 44, indent: 44),
                 itemCount: filteredSuras.length,
                 itemBuilder: (context, index) {
                   return InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      await CacheHelper.saveList(index);
+                      setState(() {});
                       Navigator.pushNamed(
                         context,
                         SuraDetailsScreen.routeName,
@@ -509,5 +517,3 @@ class _QuranTabState extends State<QuranTab> {
     );
   }
 }
-
-
