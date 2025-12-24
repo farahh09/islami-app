@@ -364,6 +364,36 @@ class _QuranTabState extends State<QuranTab> {
     6, // An-Nas
   ];
 
+  List<SuraModel> allSuras = [];
+  List<SuraModel> filteredSuras = [];
+
+  void createSurasList() {
+    for (int i = 0; i < surasName.length; i++) {
+      allSuras.add(
+        SuraModel(
+          versesCount: surasVersesCount[i],
+          nameEn: surasNameEnglish[i],
+          nameAr: surasName[i],
+          suraIndex: i + 1,
+        ),
+      );
+    }
+  }
+
+  void filterSuras(String query) {
+    if (query.isEmpty) {
+      filteredSuras = allSuras;
+    } else {
+      filteredSuras = allSuras.where((model) {
+        return model.nameAr.contains(query) ||
+            model.nameEn.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+    }
+    setState(() {});
+  }
+
+  TextEditingController searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -381,6 +411,10 @@ class _QuranTabState extends State<QuranTab> {
           children: [
             SizedBox(height: 192),
             TextField(
+              controller: searchController,
+              onChanged: (value) {
+                filterSuras(value);
+              },
               cursorColor: AppColors.primary,
               style: TextStyle(
                 fontSize: 16,
@@ -451,29 +485,17 @@ class _QuranTabState extends State<QuranTab> {
                 padding: EdgeInsets.zero,
                 separatorBuilder: (context, index) =>
                     Divider(color: Colors.white, endIndent: 44, indent: 44),
-                itemCount: surasName.length,
+                itemCount: filteredSuras.length,
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () {
                       Navigator.pushNamed(
                         context,
                         SuraDetailsScreen.routeName,
-                        arguments: SuraModel(
-                          versesCount: surasVersesCount[index],
-                          nameEn: surasNameEnglish[index],
-                          nameAr: surasName[index],
-                          suraIndex: index + 1,
-                        ),
+                        arguments: filteredSuras[index],
                       );
                     },
-                    child: SuraItem(
-                      model: SuraModel(
-                        versesCount: surasVersesCount[index],
-                        nameEn: surasNameEnglish[index],
-                        nameAr: surasName[index],
-                        suraIndex: index + 1,
-                      ),
-                    ),
+                    child: SuraItem(model: filteredSuras[index]),
                   );
                 },
               ),
